@@ -1,15 +1,18 @@
-SELECT 
+/*
+ * Calculates the hashtags that are commonly used with the hashtag #coronavirus
+ */
+SELECT
     tag,
-    count(*) AS count
+    count(*) as count
 FROM (
     SELECT DISTINCT
-        data->>'id' AS id_tweets,
-        '#' || (jsonb_array_elements(data->'entities'->'hashtags'
-            || COALESCE(data->'extended_tweet'->'entities'->'hashtags', '[]'))->>'text') AS tag -- Self join
-    FROM tweets_jsonb
-    WHERE data->'entities'->'hashtags' @@ '$[*].text == "coronavirus"' 
-       OR data->'extended_tweet'->'entities'->'hashtags' @@ '$[*].text == "coronavirus"' -- Get tags that mention coronavirus
-) t1
-GROUP BY tag
-ORDER BY count DESC, tag
+        id_tweets,
+        t2.tag
+    FROM tweet_tags t1
+    JOIN tweet_tags t2 USING (id_tweets)
+    WHERE t1.tag='#coronavirus'
+      AND t2.tag LIKE '#%'
+) t
+GROUP BY (1)
+ORDER BY count DESC,tag
 LIMIT 1000;
