@@ -1,3 +1,4 @@
+
 SELECT count(DISTINCT data->>'id')
 FROM tweets_jsonb
 WHERE data->'entities'->'hashtags' @@ '$[*].text == "coronavirus"'
